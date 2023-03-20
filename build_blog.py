@@ -110,15 +110,15 @@ class BlogBuilder:
         for filename in os.listdir(self.blog_posts_location):
             with open(self.blog_posts_location + "/" + filename) as fp:
                 soup = BeautifulSoup(fp, 'html.parser')
-                title = soup.select('h1.title')[0].decode_contents(formatter=None)
-                date = soup.select('p.date')[0].text
-                cleaned_content = soup.select('p.blogtext')[0].text
+                title = soup.select_one('.title').decode_contents(formatter=None)
+                date = soup.select_one('.date').text
+                cleaned_content = soup.select_one('.blogtext').text
                 article_summary = ArticleSummary(title, date, cleaned_content)
                 post_list.append(article_summary)
 
-                cleaned_title = soup.select('h1.title')[0].text
-                url = soup.select('a#blog-location')[0]['href']
-                raw_content = soup.select('p.blogtext')[0].decode_contents(formatter=None)
+                cleaned_title = soup.select_one('.title').text
+                url = soup.select_one('#blog-location')['href']
+                raw_content = soup.select_one('.blogtext').decode_contents(formatter=None)
                 page = {'title': cleaned_title,
                         'date': date,
                         'raw_content': raw_content,
@@ -146,20 +146,20 @@ class BlogBuilder:
         post : ArticleSummary
             the post to be added to the page
         """
-        content_div = self.postlistpage.html.body.div
+        content_div = self.postlistpage.select_one("#bloglist")
         
         post_title = self.postlistpage.new_tag('h2')
-        post_title['class'] = "title centering text"
+        post_title['class'] = "title text"
         post_title.string = post.title
         content_div.append(post_title)
 
         post_date = self.postlistpage.new_tag('p')
-        post_date['class'] = "date centering text"
+        post_date['class'] = "date text"
         post_date.string = post.date.strftime('%m/%d/%Y')
         content_div.append(post_date)
 
         post_body = self.postlistpage.new_tag('p')
-        post_body['class'] = "blogtext text centering"
+        post_body['class'] = "blogtext text"
         post_body.string = post.lede
         content_div.append(post_body)
 
@@ -178,7 +178,7 @@ class BlogBuilder:
         with open(self.page_post_location) as fp:
             soup = BeautifulSoup(fp, 'html.parser')
 
-        content_div = soup.html.body.div.div
+        content_div = soup.select_one("#blogpost")
 
         page_title = soup.new_tag('h2')
         page_title['class'] = "title text"
